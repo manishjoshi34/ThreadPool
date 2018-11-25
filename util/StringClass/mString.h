@@ -7,5 +7,6 @@ class mString{
 	public:
 	mString(void);
 	int getMaxSize(void);
+	char* getClassName();
 };
 

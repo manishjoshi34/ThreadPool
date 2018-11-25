@@ -11,6 +11,9 @@ mString::mString(void){
 int mString::getMaxSize(void){
 	return maxSize;
 }
+char* mString::getClassName(void){
+	return className;
+}
 
 int main(int argi,char** arg){
 	if(*arg!=NULL){
@@ -19,6 +22,7 @@ int main(int argi,char** arg){
 		cout<<endl;
 	}
 	mString myStr;
+	cout<<myStr.getClassName()<<endl;
 	cout<<myStr.getMaxSize()<<endl;
 	return 0;
 }
