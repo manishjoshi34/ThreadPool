@@ -1,7 +1,11 @@
 #include<iostream>
-#include"mString.h"
 
 using namespace std;
+
+#ifndef MSTRINGH
+#include"mString.h"
+#define MSTRINGH
+#endif
 
 mString::mString(void){
 	className = new char[100];
@@ -15,14 +19,3 @@ char* mString::getClassName(void){
 	return className;
 }
 
-int main(int argi,char** arg){
-	if(*arg!=NULL){
-		int i=0;
-		cout<<*arg;
-		cout<<endl;
-	}
-	mString myStr;
-	cout<<myStr.getClassName()<<endl;
-	cout<<myStr.getMaxSize()<<endl;
-	return 0;
-}
