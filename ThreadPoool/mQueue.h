@@ -1,38 +1,56 @@
-#ifndef _mQueue_h
-#define _mQueue_h
+#ifndef _safequeue_h
+#define _safequeue_h
 
 #include<queue>
-#include<iostream>
 #include<mutex>
 
-using namespace std;
 template<typename T>
 class mQueue{
 	private:
-	queue<T> _queue;
-	mutex _mutex;
+
+	std::queue<T> Queue;
+	std::mutex Mutex;
+
 	public:
-	mQueue(){}
-	~mQueue(){}
-	bool isEmpty(){
-		lock_guard<std::mutex> lock(_mutex);
-		return _queue.empty();
-	}
-	int size(){
-		lock_guard<std::mutex> lock(_mutex);
-		return _queue.size();
-	}
-	void push(T& obj){
-		lock_guard<std::mutex> lock(_mutex);
-		_queue.push(obj);
-	}
-	bool getTask(T& obj){
-		lock_guard<std::mutex> lock(_mutex);
-		if(_queue.empty()) return false;
-		obj = _queue.front();
-		_queue.pop();
-		return false;
-	}
+
+	mQueue();
+	~mQueue();
+	bool empty();
+	int size();
+	void push(T&);
+	bool pull(T&);
 };
+template<typename T>
+mQueue<T>::mQueue(){}
+
+template<typename T>
+mQueue<T>::~mQueue(){}
+
+template<typename T>
+bool mQueue<T>::empty(){
+	std::lock_guard<std::mutex> lock(Mutex);
+	return Queue.empty();
+}
+
+template<typename T>
+int mQueue<T>::size(){
+	std::lock_guard<std::mutex> lock(Mutex);
+	return Queue.size();
+}
+
+template<typename T>
+void mQueue<T>::push(T& obj){
+	std::lock_guard<std::mutex> lock(Mutex);
+	Queue.push(obj);
+}
+
+template<typename T>
+bool mQueue<T>::pull(T& obj){
+	std::lock_guard<std::mutex> lock(Mutex);
+	if(Queue.empty())return false;
+	obj = std::move(Queue.front());
+	Queue.pop();
+	return true;
+}
 
 #endif
