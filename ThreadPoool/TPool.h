@@ -15,12 +15,14 @@ typedef std::function<void()> TaskFunc;
 class ThreadPool{
 	private://variables
 		bool mShutDown;
+		int numThreads;
 		mQueue<TaskFunc> mTaskQueue;
 		std::vector<std::thread> mWorkers;
 		std::mutex mQueueMutex;
 		std::condition_variable mLock;
 		//functions
 		ThreadPool();
+		ThreadPool(const int);
 		void init();
 		ThreadPool(const ThreadPool&) = delete;
 		ThreadPool(ThreadPool&&)=delete;
@@ -35,8 +37,11 @@ class ThreadPool{
 		template<typename F, typename...Args>
 		auto submit(F&& f, Args&&...args)->std::future<decltype(f(args...))> ;
 };
-ThreadPool::ThreadPool():mWorkers(std::vector<std::thread>(MAXTHREAD)),mShutDown(false){
+ThreadPool::ThreadPool():numThreads(std::thread::hardware_concurrency()),mWorkers(std::vector<std::thread>(numThreads)),mShutDown(false){
+	//numThreads =  std::thread::hardware_concurrency();
 	init();
+}
+ThreadPool::ThreadPool(const int n):numThreads(n),mWorkers(std::vector<std::thread>(n)),mShutDown(false){
 }
 template<typename F,typename... Args>
 auto ThreadPool::submit(F&& f,Args&& ...args)-> std::future<decltype(f(args...))>{
@@ -50,7 +55,7 @@ auto ThreadPool::submit(F&& f,Args&& ...args)-> std::future<decltype(f(args...))
 	return task_ptr->get_future();
 }
 void ThreadPool::init(){
-        for(int i=0;i<MAXTHREAD;i++){
+        for(int i=0;i<numThreads;i++){
                 mWorkers[i] = std::thread([this](){
                 TaskFunc mTask;
                 bool TaskAssign;
@@ -81,7 +86,7 @@ ThreadPool::~ThreadPool(){
 void ThreadPool::shutDown(){
         mShutDown = true;
         mLock.notify_all();
-        for(int i=0;i<MAXTHREAD;i++){
+        for(int i=0;i<numThreads;i++){
                 if(mWorkers[i].joinable()){
                         mWorkers[i].join();
                 }
